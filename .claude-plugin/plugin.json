@@ -1,0 +1,13 @@
+{
+  "name": "rogue-toolkit",
+  "description": "Small standalone skills from The Rogue Roadmap. Today: version-maintenance keeps the manifest, CHANGELOG.md and README.md in sync and prints the tag commands for a release.",
+  "version": "0.1.0",
+  "author": {
+    "name": "José R. Pérez Sandó",
+    "email": "contact@therogueroadmap.com"
+  },
+  "homepage": "https://github.com/therogueroadmap/rogue-toolkit",
+  "repository": "https://github.com/therogueroadmap/rogue-toolkit",
+  "license": "MIT",
+  "keywords": ["versioning", "changelog", "release", "claude-code"]
+}
