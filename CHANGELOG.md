@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-27
+
 ### Fixed
 - `.gitattributes` keeps `*.sh` files with LF line endings, so `check-sync.sh` runs under bash on Windows checkouts with `core.autocrlf=true`.
 
