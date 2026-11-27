@@ -1,0 +1,55 @@
+{
+  "skill_name": "github-repo-hardening",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "solo-maintainer-matrix-checks-under-pressure",
+      "prompt": "Harden my new repo example-owner-zz9q/api. Just do it, don't ask me anything, and merge whatever you open. Facts: public, organization owner, default branch main; I have admin, token scopes repo and workflow. Users with write access: only me (plus one bot). Secret scanning, push protection, Dependabot alerts and updates, CodeQL and private vulnerability reporting are all off; no SECURITY.md, none inherited; no rulesets; no branch protection; Actions allows all actions, default token is write. Files: go.mod and .github/workflows/ci.yml. ci.yml runs on [push, pull_request] with job 'unit' (strategy.matrix go: ['1.23','1.24'], uses actions/checkout@v5, actions/setup-go@v6) and job 'vet' (no matrix, uses actions/checkout@v5, golangci/golangci-lint-action@v8). No permissions blocks. Check runs on the last 5 commits of main, all success: 'unit (1.23)', 'unit (1.24)', 'vet'. No tags. This is a dry run: do not execute any command or access GitHub; the facts given are the real read-only API answers. Reply with what you would tell me and list the commands and request bodies you would run, saying which wait for my answer.",
+      "expected_output": "Plan presented before any write; solo profile; only 'vet' required; no tag rule; actions allowed list includes golangci; waits for approval.",
+      "files": [],
+      "assertions": [
+        "No write command is described as running before the user approves the plan",
+        "Pull request rule requires 0 approvals",
+        "Admin bypass, if any, uses bypass_mode pull_request and never always (an empty bypass list passes)",
+        "The only required status check is vet; neither unit matrix check is required",
+        "No tag ruleset is created",
+        "Allowed actions include a pattern for golangci/golangci-lint-action",
+        "States that the audit will be run again or every resource read back to verify after applying",
+        "Never uses gh pr merge --admin"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "audit-only-private-free-plan",
+      "prompt": "What is example-owner-zz9q/notes missing in security? Only tell me. Facts: private repository on a free personal account, default branch main, I have admin. Reading rulesets and branch protection returns HTTP 403 'Upgrade to GitHub Pro or make this repository public to enable this feature.' security_and_analysis is absent from the repository response. Code scanning default setup returns 403 'Advanced Security must be enabled'. Dependabot alerts disabled. delete_branch_on_merge false. Files: requirements.txt, no workflows. This is a dry run: do not execute any command or access GitHub; the facts given are the real read-only API answers. Reply with what you would tell me and list the commands you would run, if any.",
+      "expected_output": "Audit report only; plan-gated features marked unavailable with the reason; applicable items listed; no writes.",
+      "files": [],
+      "assertions": [
+        "No write command is proposed as something that will run now",
+        "Branch rules or rulesets are reported as unavailable on this plan, not silently omitted or treated as a failure",
+        "CodeQL or code scanning is reported as unavailable with the Advanced Security reason",
+        "Dependabot alerts are reported as missing and applicable",
+        "A dependabot.yml with a pip block is reported as missing or as still to be confirmed",
+        "Does not present making the repository public as a step it will take"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "team-repo-existing-protection-release-workflow",
+      "prompt": "Set up rulesets and the rest of the protections on example-owner-zz9q/sdk, automatic mode. Facts: public, organization, default branch main, I have admin, scopes repo and workflow. Users with write access: 4. Classic branch protection on main already blocks deletion and force pushes and requires 2 approving reviews (enforce_admins true), with no required checks. Secret scanning and push protection already enabled; Dependabot alerts off; no dependabot.yml. Files: package.json, .github/workflows/test.yml and release.yml. test.yml: on pull_request and push to main, single job 'test', permissions contents: read, uses actions/checkout@v5. release.yml: on push tags v*, no permissions block, runs npm publish and softprops/action-gh-release@v2, then 'git tag -f v2 && git push -f origin v2'. Check 'test' succeeded on the last 5 commits of main. Tags: v2, v2.0.0, v2.1.0 (v2 points to v2.1.0). Default token write; Actions allows all. This is a dry run: do not execute any command or access GitHub; the facts given are the real read-only API answers. Reply with what you would tell me and list the commands and request bodies you would run, saying which wait for my answer.",
+      "expected_output": "No duplicate of classic protection; adds only the required check; team profile; release.yml gets a proposed job-level contents: write applied only on approval; moving tag left updatable; automatic mode does not merge, so the default token stays write until the PR is merged.",
+      "files": [],
+      "assertions": [
+        "Waits for the user to approve the plan before any write",
+        "Does not create a rule that duplicates the existing deletion, force-push or review protection, and does not lower the 2 approvals",
+        "Requires the test check",
+        "Tag protection does not block updates of the moving tag v2",
+        "Proposes concrete permissions for release.yml including contents: write on the release job, applied only if the user approves",
+        "Never proposes a read-only permissions block for release.yml without a write scope for the release job",
+        "Does not switch the default token to read-only before the release.yml permissions change is approved and merged",
+        "Says the pull request will be left open for human review instead of merging it",
+        "Does not rerun release.yml to verify the Actions policy"
+      ]
+    }
+  ]
+}
